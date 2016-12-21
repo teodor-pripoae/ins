@@ -9,12 +9,18 @@
 
 #include <pthread.h>
 #include <stdint.h>
-#include <syscall.h>
 #include <time.h>
 #include <unistd.h>
 
+#ifdef __APPLE__
+#include <mach/mach.h>
+#include <sys/resource.h>
+#else
+#include <syscall.h>
+#endif
+
 namespace ins_common {
-    
+
 class ThisThread {
 public:
     /// Sleep in ms
@@ -28,7 +34,11 @@ public:
     static int GetId() {
         static __thread int s_thread_id = 0;
         if (s_thread_id == 0) {
+            #if defined(__APPLE__)
+            s_thread_id = mach_thread_self();
+            #else
             s_thread_id = syscall(__NR_gettid);
+            #endif
         }
         return s_thread_id;
     }
@@ -36,7 +46,7 @@ public:
     static void Yield() {
         sched_yield();
     }
-    
+
 };
 
 } // namespace common
