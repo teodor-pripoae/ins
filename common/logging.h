@@ -22,7 +22,7 @@ void Log(int level, const char* fmt, ...);
 
 }
 
-#define LOG(level, fmt, args...) Log(level, "[%s:%d] "fmt, __FILE__, __LINE__, ##args)
+#define LOG(level, fmt, args...) Log(level, "[%s:%d] " fmt, __FILE__, __LINE__, ##args)
 
 using ins_common::DEBUG;
 using ins_common::INFO;
