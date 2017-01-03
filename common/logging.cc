@@ -10,7 +10,6 @@
 #include "logging.h"
 
 #include <unistd.h>
-#include <syscall.h>
 #include <sys/time.h>
 #include <time.h>
 
@@ -18,6 +17,13 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
+
+#ifdef __APPLE__
+#include <mach/mach.h>
+#include <sys/resource.h>
+#else
+#include <syscall.h>
+#endif
 
 namespace ins_common {
 
@@ -28,7 +34,11 @@ void SetLogLevel(int level) {
 }
 
 void Logv(const char* format, va_list ap) {
+    #if defined(__APPLE__)
+    const uint64_t thread_id = mach_thread_self();
+    #else
     const uint64_t thread_id = syscall(__NR_gettid);
+    #endif
 
     // We try twice: the first time with a fixed-size stack allocated buffer,
     // and the second time with a much larger dynamically allocated buffer.
